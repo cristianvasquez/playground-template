@@ -1,19 +1,15 @@
 <script setup>
+import { LayoutConfig, VirtualLayout } from 'golden-layout'
 import {
-  LayoutConfig,
-  VirtualLayout,
-} from 'golden-layout'
-import {
-  onMounted,
-  ref,
-    toRaw,
-  markRaw,
-  readonly,
-  defineExpose,
   defineAsyncComponent,
+  defineExpose,
   defineProps,
-  nextTick,
   getCurrentInstance,
+  markRaw,
+  nextTick,
+  onMounted,
+  readonly,
+  ref,
 } from 'vue'
 import GlComponent from './GlComponent.vue'
 
@@ -31,9 +27,9 @@ const GLRoot = ref(null)
 let GLayout
 const GlcKeyPrefix = readonly(ref('glc_'))
 
-const MapComponents = new Map()
-
+const componentMap = new Map()
 const AllComponents = ref(new Map())
+
 const UnusedIndexes = []
 let CurIndex = 0
 let GlBoundingClientRect
@@ -44,20 +40,17 @@ const instance = getCurrentInstance()
  * Method
  *******************/
 /** @internal */
-const addComponent = (componentType, title) => {
-  console.log(`loading ./Content-${componentType}.vue`)
+
+function addComponent (componentType, title) {
   const glc = markRaw(
       defineAsyncComponent(
-          () => import(`./Content-${componentType}.vue`)
-      )
+          () => import(/* @vite-ignore */ props.glcPath + componentType + '.vue'),
+      ),
   )
-
   let index = CurIndex
   if (UnusedIndexes.length > 0) index = UnusedIndexes.pop()
   else CurIndex++
-
   AllComponents.value.set(index, glc)
-
   return index
 }
 
@@ -73,7 +66,7 @@ const addGLComponent = async (componentType, title) => {
 }
 
 const loadGLLayout = async (
-    layoutConfig
+    layoutConfig,
 ) => {
   GLayout.clear()
   AllComponents.value.clear()
@@ -93,15 +86,14 @@ const loadGLLayout = async (
       if (itemConfig.type === 'component') {
         index = addComponent(
             itemConfig.componentType,
-            itemConfig.title
+            itemConfig.title,
         )
         if (typeof itemConfig.componentState == 'object')
           itemConfig.componentState['refId'] = index
         else itemConfig.componentState = { refId: index }
       } else if (itemConfig.content.length > 0) {
         contents.push(
-            itemConfig.content
-        )
+            itemConfig.content)
       }
     }
   }
@@ -140,12 +132,12 @@ onMounted(() => {
   const handleContainerVirtualRectingRequiredEvent = (
       container,
       width,
-      height
+      height,
   ) => {
-    const component = MapComponents.get(container)
+    const component = componentMap.get(container)
     if (!component || !component?.glc) {
       throw new Error(
-          'handleContainerVirtualRectingRequiredEvent: Component not found'
+          'handleContainerVirtualRectingRequiredEvent: Component not found',
       )
     }
 
@@ -154,78 +146,78 @@ onMounted(() => {
     const left =
         containerBoundingClientRect.left - GlBoundingClientRect.left
     const top = containerBoundingClientRect.top - GlBoundingClientRect.top
-    component.glc[0].setPosAndSize(left, top, width, height)
+    component.glc.setPosAndSize(left, top, width, height)
   }
 
   const handleContainerVirtualVisibilityChangeRequiredEvent = (
       container,
-      visible
+      visible,
   ) => {
-    const component = MapComponents.get(container)
+    const component = componentMap.get(container)
     if (!component || !component?.glc) {
       throw new Error(
-          'handleContainerVirtualVisibilityChangeRequiredEvent: Component not found'
+          'handleContainerVirtualVisibilityChangeRequiredEvent: Component not found',
       )
     }
-
-    component.glc[0].setVisibility(visible)
+    component.glc.setVisibility(visible)
   }
 
   const handleContainerVirtualZIndexChangeRequiredEvent = (
       container,
       logicalZIndex,
-      defaultZIndex
+      defaultZIndex,
   ) => {
-    const component = MapComponents.get(container)
+    const component = componentMap.get(container)
     if (!component || !component?.glc) {
       throw new Error(
-          'handleContainerVirtualZIndexChangeRequiredEvent: Component not found'
+          'handleContainerVirtualZIndexChangeRequiredEvent: Component not found',
       )
     }
 
-    component.glc[0].setZIndex(defaultZIndex)
+    component.glc.setZIndex(defaultZIndex)
   }
 
   const bindComponentEventListener = (
       container,
-      itemConfig
+      itemConfig,
   ) => {
     let refId = -1
     if (itemConfig && itemConfig.componentState) {
       refId = (itemConfig.componentState).refId
     } else {
       throw new Error(
-          'bindComponentEventListener: component\'s ref id is required'
+          'bindComponentEventListener: component\'s ref id is required',
       )
     }
 
     const ref = GlcKeyPrefix.value + refId
-    const component = instance?.refs[ref]
+    const [component] = instance?.refs[ref]
 
-    MapComponents.set(container, { refId: refId, glc: component })
+    componentMap.set(container, { refId: refId, glc: component })
+
 
     container.virtualRectingRequiredEvent = (container, width, height) =>
         handleContainerVirtualRectingRequiredEvent(
             container,
             width,
-            height
+            height,
         )
 
     container.virtualVisibilityChangeRequiredEvent = (container, visible) =>
         handleContainerVirtualVisibilityChangeRequiredEvent(
             container,
-            visible
+            visible,
         )
 
     container.virtualZIndexChangeRequiredEvent = (
         container,
         logicalZIndex,
-        defaultZIndex
+        defaultZIndex,
     ) =>
         handleContainerVirtualZIndexChangeRequiredEvent(
             container,
             logicalZIndex,
-            defaultZIndex
+            defaultZIndex,
         )
 
     return {
@@ -235,14 +227,14 @@ onMounted(() => {
   }
 
   const unbindComponentEventListener = (
-      container
+      container,
   ) => {
-    const component = MapComponents.get(container)
+    const component = componentMap.get(container)
     if (!component || !component?.glc) {
       throw new Error('handleUnbindComponentEvent: Component not found')
     }
 
-    MapComponents.delete(container)
+    componentMap.delete(container)
     AllComponents.value.delete(component.refId)
     UnusedIndexes.push(component.refId)
   }
@@ -250,7 +242,7 @@ onMounted(() => {
   GLayout = new VirtualLayout(
       GLRoot.value,
       bindComponentEventListener,
-      unbindComponentEventListener
+      unbindComponentEventListener,
   )
 
   GLayout.beforeVirtualRectingEvent = handleBeforeVirtualRectingEvent

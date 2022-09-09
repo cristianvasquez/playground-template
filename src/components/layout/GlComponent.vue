@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineExpose } from 'vue'
+import { defineExpose, ref } from 'vue'
 
 const GLComponent = ref(null)
 
@@ -11,9 +11,10 @@ const setPosAndSize = (
     left,
     top,
     width,
-    height
+    height,
 ) => {
   if (GLComponent.value) {
+    // HTMLElement
     const el = GLComponent.value
     el.style.left = numberToPixels(left)
     el.style.top = numberToPixels(top)
@@ -24,6 +25,7 @@ const setPosAndSize = (
 
 const setVisibility = (visible) => {
   if (GLComponent.value) {
+    // HTMLElement
     const el = GLComponent.value
     if (visible) {
       el.style.display = ''

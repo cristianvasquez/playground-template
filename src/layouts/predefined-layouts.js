@@ -1,8 +1,6 @@
-import {
-  ItemType,
-} from 'golden-layout'
+import { ItemType } from 'golden-layout'
 
-const miniRowConfig = {
+const miniRowLayout = {
   root: {
     type: ItemType.row,
     content: [
@@ -11,7 +9,7 @@ const miniRowConfig = {
         title: 'Title 1st',
         header: { show: 'top' },
         isClosable: false,
-        componentType: 'type1',
+        componentType: 'Content1',
         width: 10,
         componentState: undefined,
       },
@@ -19,13 +17,11 @@ const miniRowConfig = {
         type: 'component',
         title: 'I\'m wide',
         header: { show: 'top', popout: false },
-        componentType: 'type2',
+        componentType: 'Content2',
         componentState: { abc: 123 },
       },
     ],
   },
 }
 
-export const prefinedLayouts = {
-  miniRow: miniRowConfig,
-}
+export { miniRowLayout }
