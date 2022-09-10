@@ -1,71 +1,38 @@
 
 <script setup>
-import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { onMounted } from 'vue'
 import Glayout from './components/layout/Glayout.vue'
-import { miniRowLayout } from './layouts/predefined-layouts'
+import { CONFIG, COUNTER, HOME } from './config.js'
+import { useLayoutStore } from './store/layout.js'
 
-const rootLayoutRef = ref(null)
+const store = useLayoutStore()
+const { rootLayoutRef } = storeToRefs(store)
+const { addInstance, saveCurrentLayout, loadCurrentLayout } = store
 
-const onClickInitLayoutMinRow = () => {
-  if (!rootLayoutRef.value) return
-  console.log('onClickInitLayoutMinRow')
-  rootLayoutRef.value.loadGLLayout(miniRowLayout)
-}
 
-const onClickAddGLComponent1 = () => {
-  if (!rootLayoutRef.value) return
-  rootLayoutRef.value.addGLComponent('Content1', 'Title 1st')
-}
+const components = [HOME,CONFIG,COUNTER]
 
-const onClickAddGLComponent2 = () => {
-  if (!rootLayoutRef.value) return
-  rootLayoutRef.value.addGLComponent('Content2', 'I\'m wide')
-}
+onMounted(()=>{
+  loadCurrentLayout()
+})
 
-const onClickAddGLComponent3 = () => {
-  if (!rootLayoutRef.value) return
-  rootLayoutRef.value.addGLComponent('Content3', 'I\'m high')
-}
-
-const onClickSaveLayout = () => {
-  if (!rootLayoutRef.value) return
-  const config = rootLayoutRef.value.getLayoutConfig()
-  localStorage.setItem('gl_config', JSON.stringify(config))
-  console.log('saved',localStorage.getItem('gl_config'))
-}
-
-const onClickLoadLayout = () => {
-  const str = localStorage.getItem('gl_config')
-  if (!str) return
-  if (!rootLayoutRef.value) return
-  const config = JSON.parse(str)
-  rootLayoutRef.value.loadGLLayout(config)
-}
 </script>
 
 <template>
   <div class="full-height">
-    <div id="nav" style="height: 90px">
-      <h1 style="margin: 0">Golden Layout Demo</h1>
-      <button @click="onClickInitLayoutMinRow">Init Layout MinRow</button>
-      <div style="width: 20px; display: inline-block"></div>
-      <button @click="onClickAddGLComponent1">
-        Add Simple Component
-      </button>
-      <button @click="onClickAddGLComponent2">
-        Add Widest Component
-      </button>
-      <button @click="onClickAddGLComponent3">
-        Add Highest Component
-      </button>
-      <div style="width: 20px; display: inline-block"></div>
-      <button @click="onClickSaveLayout">Save Layout</button>
-      <div style="width: 20px; display: inline-block"></div>
-      <button @click="onClickLoadLayout">Load Layout</button>
+    <div id="nav">
+      <h1>Playground</h1>
+      <template v-for="component of components">
+        <button @click="addInstance(component)">
+          {{ component.title }}
+        </button>
+      </template>
+
     </div>
     <glayout
         ref="rootLayoutRef"
-        glc-path="./"
+        glc-path="../"
         style="width: 100%; height: calc(100% - 90px)"
     ></glayout>
   </div>
@@ -87,16 +54,6 @@ body {
 
 .full-height, #app {
   height: 100%;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#nav {
-  text-align: center;
 }
 </style>
 

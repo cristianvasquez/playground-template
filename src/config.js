@@ -1,27 +1,41 @@
 import { ItemType } from 'golden-layout'
 
+const HOME = {
+  componentType: 'Home',
+  title: 'Home',
+}
+
+const CONFIG = {
+  title: 'Settings',
+  componentType: 'Settings',
+}
+
+const COUNTER = {
+  componentType: 'Counter',
+  title: 'Counter',
+}
+
 const miniRowLayout = {
   root: {
     type: ItemType.row,
     content: [
       {
         type: 'component',
-        title: 'Title 1st',
         header: { show: 'top' },
         isClosable: false,
-        componentType: 'Content1',
-        width: 10,
+        width: 40,
         componentState: undefined,
+        ...HOME
       },
       {
         type: 'component',
-        title: 'I\'m wide',
         header: { show: 'top', popout: false },
-        componentType: 'Content2',
+        width: 40,
         componentState: { abc: 123 },
+        ...CONFIG
       },
     ],
   },
 }
 
-export { miniRowLayout }
+export { miniRowLayout, HOME, CONFIG, COUNTER }

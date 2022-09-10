@@ -44,7 +44,7 @@ const instance = getCurrentInstance()
 function addComponent (componentType, title) {
   const glc = markRaw(
       defineAsyncComponent(
-          () => import(/* @vite-ignore */ props.glcPath + componentType + '.vue'),
+          () => import(/* @vite-ignore */ `${props.glcPath}${componentType}.vue`),
       ),
   )
   let index = CurIndex
@@ -54,7 +54,7 @@ function addComponent (componentType, title) {
   return index
 }
 
-const addGLComponent = async (componentType, title) => {
+async function addGLComponent({ componentType, title }) {
   if (componentType.length === 0)
     throw new Error('addGLComponent: Component\'s type is empty')
 
