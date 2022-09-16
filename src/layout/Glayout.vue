@@ -2,7 +2,6 @@
 import { LayoutConfig, VirtualLayout } from 'golden-layout'
 import {
   defineAsyncComponent,
-  defineExpose,
   getCurrentInstance,
   markRaw,
   nextTick,
