@@ -1,20 +1,12 @@
 <script setup>
 import { LayoutConfig, VirtualLayout } from 'golden-layout'
-import {
-  defineAsyncComponent,
-  getCurrentInstance,
-  markRaw,
-  nextTick,
-  onMounted,
-  readonly,
-  ref,
-} from 'vue'
+import { defineAsyncComponent, getCurrentInstance, markRaw, nextTick, onMounted, readonly, ref } from 'vue'
 import Error from './Error.vue'
-import Loading from './Loading.vue'
 import GlComponent from './GlComponent.vue'
+import Loading from './Loading.vue'
 
 const props = defineProps({
-  componentPathPrefix: String,
+  componentPathPrefix: { type: String, required: false, default: '../../../../src/' },
 })
 
 /*******************
