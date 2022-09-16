@@ -2,10 +2,11 @@
 import { onUnmounted } from 'vue'
 
 onUnmounted(() => {
-  console.log('onUnmounted')
+  console.log('onUnmounted Hom')
 })
+
 </script>
 <template>
-  <div style="color: white">Home</div>
+  <div>Home</div>
 </template>
 

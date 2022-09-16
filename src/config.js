@@ -1,21 +1,16 @@
 import { ItemType } from 'golden-layout'
 
 const HOME = {
-  componentType: 'Home',
   title: 'Home',
+  componentType: './components/Home.vue'
 }
 
-const CONFIG = {
+const SETTINGS = {
   title: 'Settings',
-  componentType: 'Settings',
+  componentType: './components/Settings.vue'
 }
 
-const COUNTER = {
-  componentType: 'Counter',
-  title: 'Counter',
-}
-
-const miniRowLayout = {
+const defaultLayout = {
   root: {
     type: ItemType.row,
     content: [
@@ -32,10 +27,10 @@ const miniRowLayout = {
         header: { show: 'top', popout: false },
         width: 40,
         componentState: { abc: 123 },
-        ...CONFIG
+        ...SETTINGS
       },
     ],
   },
 }
 
-export { miniRowLayout, HOME, CONFIG, COUNTER }
+export { defaultLayout, HOME, SETTINGS }

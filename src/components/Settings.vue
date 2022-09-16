@@ -1,12 +1,12 @@
 <script setup>
-import { miniRowLayout } from '../config.js'
+import { defaultLayout } from '../config.js'
 import { useLayoutStore } from '../store/layout.js'
 
 const store = useLayoutStore()
-const { addInstance, saveCurrentLayout, loadCurrentLayout, loadLayout } = store
+const { saveCurrentLayout, loadCurrentLayout, loadLayout } = store
 
 const layouts = [
-  { name: 'Default layout', data: miniRowLayout },
+  { name: 'Default layout', data: defaultLayout },
 ]
 
 function load (index) {
@@ -16,23 +16,19 @@ function load (index) {
 </script>
 
 <template>
-
   <div class="layouts">
-
-    <button @click="loadCurrentLayout">Load Layout</button>
-    <button @click="saveCurrentLayout">Save Layout</button>
+    <button @click="loadCurrentLayout">Load current</button>
+    <button @click="saveCurrentLayout">Save current</button>
     <template v-for="(item, index) of layouts">
       <button @click="load(index)">{{ item.name }}</button>
     </template>
   </div>
 </template>
+
 <style scoped>
 .layouts {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
-
-
 </style>

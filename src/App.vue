@@ -2,19 +2,18 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
-import Glayout from './components/layout/Glayout.vue'
-import { CONFIG, COUNTER, HOME } from './config.js'
+import Glayout from './layout/Glayout.vue'
+import { SETTINGS, HOME, defaultLayout } from './config.js'
 import { useLayoutStore } from './store/layout.js'
 
 const store = useLayoutStore()
 const { rootLayoutRef } = storeToRefs(store)
-const { addInstance, saveCurrentLayout, loadCurrentLayout } = store
+const { addInstance, loadLayout } = store
 
-
-const components = [HOME,CONFIG,COUNTER]
+const components = [HOME, SETTINGS]
 
 onMounted(()=>{
-  loadCurrentLayout()
+  loadLayout(defaultLayout)
 })
 
 </script>
@@ -28,11 +27,10 @@ onMounted(()=>{
           {{ component.title }}
         </button>
       </template>
-
     </div>
     <glayout
         ref="rootLayoutRef"
-        glc-path="../"
+        componentPathPrefix="../"
         style="width: 100%; height: calc(100% - 90px)"
     ></glayout>
   </div>

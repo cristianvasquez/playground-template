@@ -3,7 +3,6 @@ import { LayoutConfig, VirtualLayout } from 'golden-layout'
 import {
   defineAsyncComponent,
   defineExpose,
-  defineProps,
   getCurrentInstance,
   markRaw,
   nextTick,
@@ -11,13 +10,12 @@ import {
   readonly,
   ref,
 } from 'vue'
+import Error from './Error.vue'
+import Loading from './Loading.vue'
 import GlComponent from './GlComponent.vue'
 
-/*******************
- * Prop
- *******************/
 const props = defineProps({
-  glcPath: String,
+  componentPathPrefix: String,
 })
 
 /*******************
@@ -41,12 +39,15 @@ const instance = getCurrentInstance()
  *******************/
 /** @internal */
 
-function addComponent (componentType, title) {
-  const glc = markRaw(
-      defineAsyncComponent(
-          () => import(/* @vite-ignore */ `${props.glcPath}${componentType}.vue`),
-      ),
-  )
+function addComponent ({ componentType }) {
+  const asyncComponent = defineAsyncComponent({
+    loader: () => import(/* @vite-ignore */ `${props.componentPathPrefix}${componentType}`),
+    loadingComponent: Loading,
+    errorComponent: Error,
+    // Delay before showing the loading component. Default: 200ms.
+    delay: 200,
+  })
+  const glc = markRaw(asyncComponent)
   let index = CurIndex
   if (UnusedIndexes.length > 0) index = UnusedIndexes.pop()
   else CurIndex++
@@ -54,14 +55,11 @@ function addComponent (componentType, title) {
   return index
 }
 
-async function addGLComponent({ componentType, title }) {
+async function addGLComponent ({ componentType, title }) {
   if (componentType.length === 0)
     throw new Error('addGLComponent: Component\'s type is empty')
-
-  const index = addComponent(componentType, title)
-
+  const index = addComponent({ componentType })
   await nextTick() // wait 1 tick for vue to add the dom
-
   GLayout.addComponent(componentType, { refId: index }, title)
 }
 
@@ -70,7 +68,6 @@ const loadGLLayout = async (
 ) => {
   GLayout.clear()
   AllComponents.value.clear()
-
   const config = (
       layoutConfig.resolved
           ? LayoutConfig.fromResolved(layoutConfig)
@@ -84,10 +81,7 @@ const loadGLLayout = async (
     const content = contents.shift()
     for (let itemConfig of content) {
       if (itemConfig.type === 'component') {
-        index = addComponent(
-            itemConfig.componentType,
-            itemConfig.title,
-        )
+        index = addComponent(itemConfig)
         if (typeof itemConfig.componentState == 'object')
           itemConfig.componentState['refId'] = index
         else itemConfig.componentState = { refId: index }
@@ -194,7 +188,6 @@ onMounted(() => {
     const [component] = instance?.refs[ref]
 
     componentMap.set(container, { refId: refId, glc: component })
-
 
     container.virtualRectingRequiredEvent = (container, width, height) =>
         handleContainerVirtualRectingRequiredEvent(
