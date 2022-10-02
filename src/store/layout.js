@@ -1,27 +1,47 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+const LOCAL_STORAGE_KEY = 'saved_layouts'
 export const useLayoutStore = defineStore('layout-store', () => {
 
-  const rootLayoutRef = ref(null)
+  const rootLayoutRef = ref(null) // Reference to the current golden layout
 
-  function loadLayout (config) {
+  const userLayouts = ref([])
+
+  function _getSavedLayouts () {
+    const str = localStorage.getItem(LOCAL_STORAGE_KEY)
+    if (!str) return []
+    return JSON.parse(str)
+  }
+
+  function init () {
+    userLayouts.value = _getSavedLayouts()
+  }
+
+  function addCurrentLayout (additionalState) {
+    if (!rootLayoutRef.value) return
+    userLayouts.value.push({
+      date: new Date(),
+      layout: rootLayoutRef.value.getLayoutConfig(),
+      ...additionalState,
+    })
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userLayouts.value))
+  }
+
+  function loadLayoutConfig (config) {
     if (!rootLayoutRef.value) return
     rootLayoutRef.value.loadGLLayout(config)
   }
 
-  function saveCurrentLayout () {
+  function selectLayout (index) {
     if (!rootLayoutRef.value) return
-    const currentLayout = rootLayoutRef.value.getLayoutConfig()
-    localStorage.setItem('gl_config', JSON.stringify(currentLayout))
+    const { layout } = userLayouts.value[index]
+    loadLayoutConfig(layout)
   }
 
-  function loadCurrentLayout () {
-    const str = localStorage.getItem('gl_config')
-    if (!str) return
+  function deleteLayout (index) {
     if (!rootLayoutRef.value) return
-    const config = JSON.parse(str)
-    loadLayout(config)
+    userLayouts.value.splice(index, 1);
   }
 
   function addInstance (component) {
@@ -32,9 +52,12 @@ export const useLayoutStore = defineStore('layout-store', () => {
   return {
     rootLayoutRef,
     addInstance,
-    saveCurrentLayout,
-    loadCurrentLayout,
-    loadLayout,
+    userLayouts,
+    addCurrentLayout,
+    selectLayout,
+    deleteLayout,
+    loadLayoutConfig,
+    init
   }
 })
 

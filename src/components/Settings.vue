@@ -1,26 +1,39 @@
 <script setup>
+import { onMounted, ref } from 'vue'
+import {storeToRefs} from 'pinia'
 import { defaultLayout } from '../config.js'
 import { useLayoutStore } from '../store/layout.js'
 
 const store = useLayoutStore()
-const { saveCurrentLayout, loadCurrentLayout, loadLayout } = store
+
+const {addCurrentLayout, selectLayout, deleteLayout} = store
+const {userLayouts} = storeToRefs(store)
 
 const layouts = [
   { name: 'Default layout', data: defaultLayout },
 ]
 
+onMounted(()=>{
+  store.init()
+})
+
 function load (index) {
-  loadLayout(layouts[index].data)
+  store.loadLayoutConfig(layouts[index].data)
 }
 
 </script>
 
 <template>
   <div class="layouts">
-    <button @click="loadCurrentLayout">Load current</button>
-    <button @click="saveCurrentLayout">Save current</button>
     <template v-for="(item, index) of layouts">
       <button @click="load(index)">{{ item.name }}</button>
+    </template>
+    <button @click="addCurrentLayout">Save current</button>
+    <template v-for="(item, index) of userLayouts">
+      <div>
+        <button @click="deleteLayout(index)">X</button>
+        <button @click="selectLayout(index)">{{ item.date }}</button>
+      </div>
     </template>
   </div>
 </template>

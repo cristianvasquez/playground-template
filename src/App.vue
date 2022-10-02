@@ -8,12 +8,12 @@ import { useLayoutStore } from './store/layout.js'
 
 const store = useLayoutStore()
 const { rootLayoutRef } = storeToRefs(store)
-const { addInstance, loadLayout } = store
+const { addInstance, loadLayoutConfig } = store
 
 const components = [HOME, SETTINGS]
 
 onMounted(()=>{
-  loadLayout(defaultLayout)
+  loadLayoutConfig(defaultLayout)
 })
 
 </script>
